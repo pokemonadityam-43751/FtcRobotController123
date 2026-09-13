@@ -302,6 +302,43 @@ def main() -> None:
     print("    POLLEN needs a perfect 4/4 -- that is the real value of NECTAR.")
 
     print()
+    print("=" * 78)
+    print("5) FLOWER ECONOMICS -- every FLOWER starts with [4] POLLEN staged in it")
+    print("   (10.3.1), and staged pollen only pays out to the FLOWER'S OWNER.")
+    print("   Owner = the ALLIANCE with the top-most NECTAR.  No NECTAR = no owner")
+    print("   = that flower's pollen is worth 0 to everybody.")
+    print("=" * 78)
+    print(f"{'scenario':<42}{'elem':>6}{'owned':>7}{'bottom':>8}{'pts':>6}")
+    for label, flowers, elems, owned, bottom in (
+        ("4 staged POLLEN, nobody places NECTAR", 1, 4, False, 0),
+        ("+ your 1 NECTAR, opponent never replies", 1, 5, True, 1),
+        ("your NECTAR, opponent's NECTAR on top", 1, 6, False, 0),
+        ("4 FLOWERS x 1 NECTAR each, uncontested", 4, 20, True, 4),
+    ):
+        pts = elems * P_FLOWER_OWNED if owned else 0
+        pts += bottom * P_BOTTOM_NECTAR          # 5 points per FLOWER
+        print(f"{label:<42}{elems:>6}{('yes' if owned else 'no'):>7}"
+              f"{bottom:>8}{pts:>6}")
+
+    print()
+    print("   marginal value in the last 60 s (G410 window):")
+    flower_cycle = 15.0
+    print(f"     FLOWER placement          {flower_cycle:>4.0f} s/cycle  "
+          f"-> {15 / flower_cycle:.2f} pts/s   (points only, no RP)")
+    for pollen_load, nectar_load, label in ((4, 0, "4 POLLEN"), (0, 4, "4 NECTAR")):
+        r = estimate("x", 12, args.hit, pollen_load, nectar_load, args.recapture)
+        rate = P_TIP / (r.trips_per_tip * 12)
+        print(f"     HIVE tipping, 12 s trips  {label:>9}  "
+              f"-> {rate:.2f} pts/s   + POLLINATOR RP progress")
+    print(f"   opportunity cost: {4 * NECTAR_MASS_G:.0f} g of NECTAR diverted to FLOWERS")
+    print(f"                     = {4 * NECTAR_MASS_G / TIP_MASS_G:.2f} of a TIP "
+          f"(~{P_TIP * 4 * NECTAR_MASS_G / TIP_MASS_G:.0f} points of hive value forgone)")
+    print("   the RPs are TIPs only (Table 10-3): POLLINATOR 1 = 4 TIPs, "
+          "POLLINATOR 2 = 7 TIPs.")
+    print("   => FLOWERS are the bigger pile of points, TIPs are the RP path.")
+    print("      Do both, in that order, and never at the cost of the other.")
+
+    print()
     print("=" * 74)
     print("4) WHAT A NON-SHOOTING ROBOT IS WORTH (sanity floor)")
     print("=" * 74)

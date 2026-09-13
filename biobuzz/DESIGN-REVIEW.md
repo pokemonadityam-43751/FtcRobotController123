@@ -567,6 +567,28 @@ D  magazine (10.0 s)                  3   6.4    28     121    149        POLL1
     NECTAR stays at two trips per TIP even when one of four misses;
     POLLEN needs a perfect 4/4 -- that is the real value of NECTAR.
 
+==============================================================================
+5) FLOWER ECONOMICS -- every FLOWER starts with [4] POLLEN staged in it
+   (10.3.1), and staged pollen only pays out to the FLOWER'S OWNER.
+   Owner = the ALLIANCE with the top-most NECTAR.  No NECTAR = no owner
+   = that flower's pollen is worth 0 to everybody.
+==============================================================================
+scenario                                    elem  owned  bottom   pts
+4 staged POLLEN, nobody places NECTAR          4     no       0     0
++ your 1 NECTAR, opponent never replies        5    yes       1    15
+your NECTAR, opponent's NECTAR on top          6     no       0     0
+4 FLOWERS x 1 NECTAR each, uncontested        20    yes       4    60
+
+   marginal value in the last 60 s (G410 window):
+     FLOWER placement            15 s/cycle  -> 1.00 pts/s   (points only, no RP)
+     HIVE tipping, 12 s trips   4 POLLEN  -> 0.56 pts/s   + POLLINATOR RP progress
+     HIVE tipping, 12 s trips   4 NECTAR  -> 0.83 pts/s   + POLLINATOR RP progress
+   opportunity cost: 165 g of NECTAR diverted to FLOWERS
+                     = 0.83 of a TIP (~17 points of hive value forgone)
+   the RPs are TIPs only (Table 10-3): POLLINATOR 1 = 4 TIPs, POLLINATOR 2 = 7 TIPs.
+   => FLOWERS are the bigger pile of points, TIPs are the RP path.
+      Do both, in that order, and never at the cost of the other.
+
 ==========================================================================
 4) WHAT A NON-SHOOTING ROBOT IS WORTH (sanity floor)
 ==========================================================================
