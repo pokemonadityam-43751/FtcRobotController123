@@ -1,0 +1,63 @@
+==============================================================================
+1) LOADOUT COMPARISON -- one robot, 12 s trips, hit rate 85%, recapture 85%
+   (throughput ceiling: assumes spilled elements are re-collected)
+==============================================================================
+scenario                       trip/tip  tips  AUTO  TELEOP  MATCH           RP
+-------------------------------------------------------------------------------
+A  4 POLLEN / trip                    3   5.3    28      96    124        POLL1
+B  3 NECTAR + 1 POLLEN                2   6.4     8     137    145        POLL1
+C  4 NECTAR / trip                    2   7.1     8     147    155  POLL1+POLL2
+D  2 NECTAR + 2 POLLEN                2   5.7     8     128    136        POLL1
+
+==========================================================================
+2) TRIP-TIME SENSITIVITY -- 4 POLLEN per trip, ONE robot
+==========================================================================
+ cycle_s  trips  trip/tip  tips  TELEOP  MATCH           RP
+       8     15         3   7.4     141    169  POLL1+POLL2
+      10     12         3   6.1     110    138        POLL1
+      12     10         3   5.3      96    124        POLL1
+      15      8         3   4.4      81    109        POLL1
+      18      6         3   3.6      67     95            -
+      22      5         3   3.1      50     78            -
+      30      4         3   2.7      52     80            -
+
+==============================================================================
+2b) SHOT-ACCURACY SENSITIVITY -- 12 s trips, 4 POLLEN per trip
+==============================================================================
+  hit rate   g/trip   tips  TELEOP  MATCH           RP
+       60%       60    3.0      66     74            -
+       70%       70    3.5      87     95            -
+       80%       80    5.0      86    114        POLL1
+       90%       90    5.5     105    133        POLL1
+      100%      100    6.0     106    134        POLL1
+
+==========================================================================
+3) ALLIANCE TOTAL -- two robots sharing one HIVE (tips add up)
+==========================================================================
+ cycle_s  tips/robot  tips ALLIANCE   POLL1   POLL2
+      10         6.1           10.5     yes     yes
+      12         5.3            8.9     yes     yes
+      15         4.4            7.3     yes     yes
+      18         3.6            5.7     yes      no
+      22         3.1            5.0     yes      no
+      30         2.7            4.2     yes      no
+
+==========================================================================
+4) WHAT A NON-SHOOTING ROBOT IS WORTH (sanity floor)
+==========================================================================
+scenario                       trip/tip  tips  AUTO  TELEOP  MATCH           RP
+-------------------------------------------------------------------------------
+LEAVE+PARK+AUTO PARK, no HIVE shots        0   0.0     8       5     13            -
+same + 4 elements in GARDEN           0   0.0     8       9     17            -
+
+--------------------------------------------------------------------------
+TIP_MASS         199 g  = 8.0 POLLEN or 3 NECTAR + 3 POLLEN
+CONTROL_LIMIT    4 elements (G407) -> heaviest load 165 g = 83% of a TIP
+TELEOP budget    120 s : trips = 120/cycle_s
+NECTAR per trial 3 staged in the CELL + 5 fed in by the human player (G426)
+Supply note: at 85% recapture the ALLIANCE loses ~30 g of elements per TIP,
+             i.e. ~1.2 POLLEN-equivalents per TIP to be replaced from GARDEN / FLOWER / floor stock.
+Take-away: the free first TIP needs only 3 POLLEN (3 NECTAR are already
+           in the CELL).  After that a 4-POLLEN load at 85% accuracy needs
+           3 trips per TIP while a 3-NECTAR + 1-POLLEN load needs 2, so
+           NECTAR + short trips are the two biggest levers you own.
