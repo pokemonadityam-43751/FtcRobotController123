@@ -141,7 +141,7 @@ def estimate(
         r.auto_points += P_TIP
 
     # ---- TELEOP ----------------------------------------------------------
-    trips = int(TELEOP_S // cycle_s)
+    trips = TELEOP_S / cycle_s          # expected trips (fractional)
     r.trips = trips
     total_mass = trips * mass_per_trip
     teleop_tips = total_mass / TIP_MASS_G
@@ -160,6 +160,23 @@ def estimate(
         if bottom_nectar:
             r.teleop_points += P_BOTTOM_NECTAR
     return r
+
+
+def effective_cycle(
+    base_s: float,
+    pollen_loss: float = 0.0,
+    jam_per_trip: float = 0.0,
+    jam_clear_s: float = 0.0,
+) -> float:
+    """Trip time after paying for mechanical complexity.
+
+    pollen_loss : fraction of a pickup swallowed by the mechanism that then has
+                  to be re-acquired (spreads the same load over more time)
+    jam_per_trip * jam_clear_s : expected seconds of un-jamming per trip
+    """
+    if not 0.0 <= pollen_loss < 1.0:
+        raise ValueError("pollen_loss must be in [0, 1)")
+    return base_s / (1.0 - pollen_loss) + jam_per_trip * jam_clear_s
 
 
 def table(rows: list[Result]) -> str:
@@ -231,6 +248,58 @@ def main() -> None:
         print(f"{c:>8}{r.tips:>12.1f}{alliance:>15.1f}"
               f"{'yes' if alliance >= 4 else 'no':>8}"
               f"{'yes' if alliance >= 7 else 'no':>8}")
+
+    print()
+    print("=" * 78)
+    print("3b) THE MECHANICAL COST OF THE SORTER -- Design A vs B vs D")
+    print("    A = tuned-spacing sorter   B = even spacing (pollen-capable)")
+    print("    D = magazine design recommended in DESIGN-COMPARISON.md")
+    print("    (illustrative mechanical costs, printed so you can argue with them)")
+    print("=" * 78)
+    a_cycle = effective_cycle(12.0, pollen_loss=0.20, jam_per_trip=1 / 8,
+                              jam_clear_s=6.0)
+    rows = [
+        estimate(f"1  sorter ({a_cycle:.1f} s trips)", a_cycle, 0.85, 4, 0,
+                 args.recapture),
+        estimate("2  even spacing (12.0 s)", 12.0, 0.85, 4, 0, args.recapture),
+        estimate("D  magazine (10.0 s)", 10.0, 0.90, 4, 0, args.recapture),
+    ]
+    print(table(rows))
+    print(f"    effective trip time:  A {a_cycle:.1f} s   B 12.0 s   D 10.0 s")
+    print("    A's mechanical cost: 20% of POLLEN lost into the wide gaps")
+    print("    (has to be re-acquired) + 1 jam per 8 trips, 6 s to clear.")
+    print("    A's upside: element-type selection -- worth 0 extra TIPs, because")
+    print("    POLLEN is never harmful and a flywheel cannot place NECTAR into a")
+    print("    FLOWER (G418 / 9.7) anyway.")
+
+    print()
+    print("=" * 78)
+    print("3c) WHAT ONE SECOND OF TRIP TIME IS WORTH -- 4 POLLEN per trip")
+    print("=" * 78)
+    print(f"{'cycle_s':>8}{'trips':>7}{'tips':>7}{'TIP pts':>9}{'pts lost':>10}")
+    prev = None
+    for c in (10, 11, 12, 13, 14, 15):
+        r = estimate("x", float(c), args.hit, 4, 0, args.recapture)
+        tip_pts = r.tips * P_TIP
+        delta = "-" if prev is None else f"{prev - tip_pts:.0f}"
+        print(f"{c:>8}{r.trips:>7.1f}{r.tips:>7.1f}{tip_pts:>9.0f}{delta:>10}")
+        prev = tip_pts
+    print("    ('pts lost' = MATCH points given away by adding one second)")
+    print(f"    => roughly {P_TIP * (4 * args.hit * POLLEN_MASS_G / TIP_MASS_G) * TELEOP_S / 12 / 12:.0f}"
+          " points per second at a 12 s cycle; treat trip time as the")
+    print("       currency you are spending on every mechanism you add.")
+
+    print()
+    print("=" * 78)
+    print("3d) TRIPS PER TIP vs HOW MANY ELEMENTS ACTUALLY LAND")
+    print("=" * 78)
+    print(f"{'elements landing':>18}{'4 POLLEN':>12}{'4 NECTAR':>12}")
+    for landed in (4.0, 3.5, 3.0, 2.5, 2.0):
+        p = math.ceil(TIP_MASS_G / (landed * POLLEN_MASS_G))
+        n = math.ceil(TIP_MASS_G / (landed * NECTAR_MASS_G))
+        print(f"{landed:>18.1f}{p:>12}{n:>12}")
+    print("    NECTAR stays at two trips per TIP even when one of four misses;")
+    print("    POLLEN needs a perfect 4/4 -- that is the real value of NECTAR.")
 
     print()
     print("=" * 74)
